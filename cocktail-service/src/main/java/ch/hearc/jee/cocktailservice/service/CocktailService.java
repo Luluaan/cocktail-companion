@@ -1,8 +1,17 @@
 package ch.hearc.jee.cocktailservice.service;
 
+import ch.hearc.jee.cocktailservice.resource.Drink;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class CocktailService implements CocktailService_I{
@@ -21,18 +30,42 @@ public class CocktailService implements CocktailService_I{
     }
 
     @Override
-    public String getRandom() {
-        return this.restClient.get()
-                .uri(this.randomUrl)
-                .retrieve()
-                .body(String.class);
+    public Optional<Drink> getRandom() {
+        try {
+            Map<String, Drink[]> map = this.restClient.get()
+                    .uri(this.randomUrl)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+
+            Drink[] drinksArray = map != null ? map.get("drinks") : null;
+
+            if (drinksArray != null && drinksArray.length > 0) {
+                return Optional.of(drinksArray[0]);
+            } else {
+                return Optional.empty();
+            }
+        } catch (HttpClientErrorException | ResourceAccessException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
-    public String search(String name) {
-        return this.restClient.get()
-                .uri(this.searchUrl, name)
-                .retrieve()
-                .body(String.class);
+    public Optional<Drink[]> search(String name) {
+        try {
+            Map<String, Object> map = this.restClient.get()
+                    .uri(this.searchUrl, name)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+
+            Object drinksObj = map != null ? map.get("drinks") : null;
+
+            if (drinksObj instanceof List<?> drinksList) {
+                ObjectMapper mapper = new ObjectMapper();
+                Drink[] drinks = mapper.convertValue(drinksList, Drink[].class);
+                return Optional.of(drinks);
+            }
+        } catch (HttpClientErrorException | ResourceAccessException ignored) {}
+
+        return Optional.empty();
     }
 }
