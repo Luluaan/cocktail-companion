@@ -1,12 +1,13 @@
 package ch.hearc.jee.cocktailservice.controller;
 
 import ch.hearc.jee.cocktailservice.resource.Drink;
+import ch.hearc.jee.cocktailservice.resource.JmsMessage;
 import ch.hearc.jee.cocktailservice.service.CocktailService;
+import ch.hearc.jee.cocktailservice.service.JmsSender;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -15,9 +16,13 @@ import java.util.Optional;
 public class CocktailController {
 
     private final CocktailService cocktailService;
+    private final JmsSender jmsSender;
+    private final String queueName;
 
-    public CocktailController(CocktailService cocktailService) {
+    public CocktailController(CocktailService cocktailService, JmsSender jmsSender, @Value("${jms.feedback.queue}") String queueName) {
         this.cocktailService = cocktailService;
+        this.jmsSender = jmsSender;
+        this.queueName = queueName;
     }
 
     @GetMapping("/random")
@@ -45,6 +50,12 @@ public class CocktailController {
             return ResponseEntity.ok(drinks.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/feedback")
+    public ResponseEntity<Void> feedback(@RequestBody JmsMessage feedback) throws JsonProcessingException {
+        jmsSender.sendMessage(queueName, feedback);
+        return ResponseEntity.noContent().build();
     }
 
 }
