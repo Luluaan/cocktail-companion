@@ -30,8 +30,17 @@ public class CocktailController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Drink[]> search(@RequestParam String name) {
-        Optional<Drink[]> drinks = cocktailService.search(name);
+    public ResponseEntity<Drink> search(@RequestParam String name) {
+        Optional<Drink> drinks = cocktailService.search(name);
+        if (drinks.isPresent()) {
+            return ResponseEntity.ok(drinks.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/searchAll")
+    public ResponseEntity<Drink[]> searchAll(@RequestParam String name) {
+        Optional<Drink[]> drinks = cocktailService.searchAll(name);
         if (drinks.isPresent()) {
             return ResponseEntity.ok(drinks.get());
         }

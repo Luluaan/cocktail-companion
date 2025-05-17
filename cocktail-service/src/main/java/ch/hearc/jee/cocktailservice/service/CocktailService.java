@@ -50,7 +50,27 @@ public class CocktailService implements CocktailService_I{
     }
 
     @Override
-    public Optional<Drink[]> search(String name) {
+    public Optional<Drink> search(String name) {
+        try {
+            Map<String, Object> map = this.restClient.get()
+                    .uri(this.searchUrl, name)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+
+            Object drinksObj = map != null ? map.get("drinks") : null;
+
+            if (drinksObj instanceof List<?> drinksList && !drinksList.isEmpty()) {
+                ObjectMapper mapper = new ObjectMapper();
+                Drink[] drinks = mapper.convertValue(drinksList, Drink[].class);
+                return Optional.of(drinks[0]);
+            }
+        } catch (HttpClientErrorException | ResourceAccessException ignored) {}
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Drink[]> searchAll(String name) {
         try {
             Map<String, Object> map = this.restClient.get()
                     .uri(this.searchUrl, name)
