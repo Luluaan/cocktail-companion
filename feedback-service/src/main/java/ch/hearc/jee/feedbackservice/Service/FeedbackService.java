@@ -1,27 +1,34 @@
 package ch.hearc.jee.feedbackservice.Service;
 
-
 import ch.hearc.jee.feedbackservice.Respository.FeedbackRepository;
 import ch.hearc.jee.feedbackservice.model.Feedback;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FeedbackService {
-    private final JmsTemplate jms;
-    private final FeedbackRepository repo;
 
-    public FeedbackService(JmsTemplate jms, FeedbackRepository repo) {
-        this.jms = jms;
-        this.repo = repo;
+    private final FeedbackRepository feedbackRepository;
+
+    public FeedbackService(FeedbackRepository feedbackRepository) {
+        this.feedbackRepository = feedbackRepository;
     }
 
-    public void submitFeedback(Feedback feedback) {
-        jms.convertAndSend("feedback.requests", feedback);
-    }
+    public Map<String, Object> getFeedbackByCocktailId(String cocktailId) {
+        List<Feedback> feedbacks = feedbackRepository.findByCocktailId(cocktailId);
 
-    public List<Feedback> getFeedbacks(String cocktailId) {
-        return repo.findByCocktailId(cocktailId);
+        double average = 0.0;
+        if (!feedbacks.isEmpty()) {
+            average = feedbacks.stream().mapToInt(Feedback::getRating).average().orElse(0.0);
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("feedbacks", feedbacks);
+        result.put("averageRating", average);
+
+        return result;
     }
 }
