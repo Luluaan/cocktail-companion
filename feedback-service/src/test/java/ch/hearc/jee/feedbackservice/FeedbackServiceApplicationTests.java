@@ -85,4 +85,53 @@ public class FeedbackServiceApplicationTests {
         assertEquals("Très bon", saved.getComment());
         assertEquals(5, saved.getRating());
     }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithBlankIdDrink() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("", "3", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithNonNumericIdDrink() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("abc123", "3", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithBlankMark() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithMarkOutOfRangeLow() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "0", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithMarkOutOfRangeHigh() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "6", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithNonNumericMark() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "abc", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithBlankComment() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "3", ""));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
 }
