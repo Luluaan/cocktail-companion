@@ -20,7 +20,7 @@ public class FeedbackListener {
         this.objectMapper = objectMapper;
     }
 
-    @JmsListener(destination = "feedback-queue")
+    @JmsListener(destination = "${feedback.queue.name}")
     public void onFeedbackMessage(String message) throws JsonProcessingException {
         JmsMessage jmsMessage = objectMapper.readValue(message, JmsMessage.class);
         System.out.println("Message reçu : " + jmsMessage.getComment());
