@@ -6,6 +6,7 @@ import ch.hearc.jee.cocktailservice.service.CocktailFeedbackService;
 import ch.hearc.jee.cocktailservice.service.CocktailService;
 import ch.hearc.jee.cocktailservice.service.JmsSender;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,7 @@ public class CocktailController {
         this.feedbackService = feedbackService;
     }
 
+    @Operation(summary = "Get a random cocktail", description = "Returns a random cocktail with its feedbacks")
     @GetMapping("/random")
     public ResponseEntity<Map<String, Object>> getRandom() {
         return cocktailService.getRandom()
@@ -42,7 +44,7 @@ public class CocktailController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
-
+    @Operation(summary = "Get a cocktail by name", description = "Returns a cocktail with its feedbacks")
     @GetMapping("/search")
     public ResponseEntity<Map<String, Object>> search(@RequestParam String name) {
         return cocktailService.search(name)
@@ -55,6 +57,7 @@ public class CocktailController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Search all cocktails by name", description = "Returns a list of cocktails with their feedbacks")
     @GetMapping("/searchAll")
     public ResponseEntity<List<Map<String, Object>>> searchAll(@RequestParam String name) {
         return cocktailService.searchAll(name)
@@ -71,6 +74,8 @@ public class CocktailController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+
+    @Operation(summary = "Post feedback", description = "Sends feedback to the feedback queue")
     @PostMapping("/feedback")
     public ResponseEntity<Void> feedback(@RequestBody JmsMessage feedback) throws JsonProcessingException {
         jmsSender.sendMessage(queueName, feedback);
