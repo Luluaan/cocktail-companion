@@ -11,13 +11,13 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class FeedbackListener {
-    @Autowired
-    private ObjectMapper objectMapper;
 
+    private final ObjectMapper objectMapper;
     private final FeedbackRepository repo;
 
-    public FeedbackListener(FeedbackRepository repo) {
+    public FeedbackListener(FeedbackRepository repo, ObjectMapper objectMapper) {
         this.repo = repo;
+        this.objectMapper = objectMapper;
     }
 
     @JmsListener(destination = "feedback-queue")
