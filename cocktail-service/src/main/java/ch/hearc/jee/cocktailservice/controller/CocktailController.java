@@ -7,11 +7,14 @@ import ch.hearc.jee.cocktailservice.service.CocktailService;
 import ch.hearc.jee.cocktailservice.service.JmsSender;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/cocktails")
@@ -77,8 +80,15 @@ public class CocktailController {
 
     @Operation(summary = "Post feedback", description = "Sends feedback to the feedback queue")
     @PostMapping("/feedback")
-    public ResponseEntity<Void> feedback(@RequestBody JmsMessage feedback) throws JsonProcessingException {
+    public ResponseEntity<?> feedback(@Valid @RequestBody JmsMessage feedback, BindingResult result) throws JsonProcessingException {
+        if (result.hasErrors()) {
+            String errorMessage = result.getAllErrors().stream()
+                    .map(err -> err.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+
         jmsSender.sendMessage(queueName, feedback);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
 }

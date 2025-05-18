@@ -4,7 +4,7 @@ import ch.hearc.jee.feedbackservice.Service.FeedbackService;
 import ch.hearc.jee.feedbackservice.controller.FeedbackController;
 import ch.hearc.jee.feedbackservice.model.Feedback;
 import ch.hearc.jee.feedbackservice.model.JmsMessage;
-import ch.hearc.jee.feedbackservice.Respository.FeedbackRepository;
+import ch.hearc.jee.feedbackservice.Repository.FeedbackRepository;
 import ch.hearc.jee.feedbackservice.Listener.FeedbackListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -84,5 +84,54 @@ public class FeedbackServiceApplicationTests {
         assertEquals("999", saved.getCocktailId());
         assertEquals("Très bon", saved.getComment());
         assertEquals(5, saved.getRating());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithBlankIdDrink() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("", "3", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithNonNumericIdDrink() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("abc123", "3", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithBlankMark() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithMarkOutOfRangeLow() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "0", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithMarkOutOfRangeHigh() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "6", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithNonNumericMark() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "abc", "Très bon"));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
+    }
+
+    @Test
+    void testFeedbackListenerIgnoresMessageWithBlankComment() throws JsonProcessingException {
+        String messageJson = objectMapper.writeValueAsString(new JmsMessage("123", "3", ""));
+        feedbackListener.onFeedbackMessage(messageJson);
+        verify(feedbackRepository, never()).save(any());
     }
 }
