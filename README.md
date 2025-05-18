@@ -10,12 +10,15 @@
 git clone https://github.com/Luluaan/cocktail-companion.git
 ```
 
-### 2. Lancer les containers (base de données et Apache ActiveMQ)
+### 2. Préparer l'environnement
+Dans les deux dossiers ***cocktail-service*** et ***feedback-service*** il faut renommer le fichier ***env.properties.example*** en ***env.properties*** et modifier les valeurs comme nécessaire.
+
+### 3. Lancer les containers (base de données et Apache ActiveMQ)
 ```bash
 docker-compose up --build -d
 ```
 
-### 3. Démarrer les services
+### 4. Démarrer les services
 
 #### Cocktail Service
 ```bash
@@ -36,13 +39,13 @@ mvnw spring-boot:run
 ## Exemple d’utilisation
 
 ### 1. Trouver un cocktail par son nom (ex: "margarita")
-![Recherche cocktail](documentation/1.png)
+![Recherche cocktail](https://github.com/Luluaan/cocktail-companion/blob/main/Documentation/1.png)
 
 ### 2. Ajouter une note et un commentaire au cocktail (ex: idDrink = 11007)
-![Ajout feedback](documentation/2.png)
+![Ajout feedback](https://github.com/Luluaan/cocktail-companion/blob/main/Documentation/2.png)
 
 ### 3. Visualiser à nouveau le cocktail avec feedback(s) et note moyenne
-![Voir feedback](documentation/3.png)
+![Voir feedback](https://github.com/Luluaan/cocktail-companion/blob/main/Documentation/3.png)
 
 ## Dépendances spécifiques
 Voici la liste des packages spécifiques qui sortent du cadre du cours que nous avons utilisés:
