@@ -1,4 +1,4 @@
-package ch.hearc.jee.feedbackservice.Respository;
+package ch.hearc.jee.feedbackservice.Repository;
 
 import ch.hearc.jee.feedbackservice.model.Feedback;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -4,7 +4,7 @@ import ch.hearc.jee.feedbackservice.Service.FeedbackService;
 import ch.hearc.jee.feedbackservice.controller.FeedbackController;
 import ch.hearc.jee.feedbackservice.model.Feedback;
 import ch.hearc.jee.feedbackservice.model.JmsMessage;
-import ch.hearc.jee.feedbackservice.Respository.FeedbackRepository;
+import ch.hearc.jee.feedbackservice.Repository.FeedbackRepository;
 import ch.hearc.jee.feedbackservice.Listener.FeedbackListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

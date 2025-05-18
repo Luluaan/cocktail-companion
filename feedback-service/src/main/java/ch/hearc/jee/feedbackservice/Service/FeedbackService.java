@@ -1,6 +1,6 @@
 package ch.hearc.jee.feedbackservice.Service;
 
-import ch.hearc.jee.feedbackservice.Respository.FeedbackRepository;
+import ch.hearc.jee.feedbackservice.Repository.FeedbackRepository;
 import ch.hearc.jee.feedbackservice.model.Feedback;
 import org.springframework.stereotype.Service;
 
